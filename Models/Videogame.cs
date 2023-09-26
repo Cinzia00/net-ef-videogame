@@ -14,6 +14,23 @@ namespace net_ef_videogame.Models
         public string Overview { get; set; }    
         public DateTime Release_date { get; set; }
 
+        public Videogame() { }
+
+        public Videogame(int videogameid, string name, string overview, DateTime release_date, int software_houseId) /*, Software_house software_house, List<Device> devices, List<Pegi_label> pegi_labels, List<Category> categories, List<Award> awards, List<Tournament> tournaments, List<Review> reviews)*/
+        {
+            VideogameId = videogameid;
+            Name = name;
+            Overview = overview;
+            Release_date = release_date;
+            Software_houseId = software_houseId;
+            //Software_house = software_house;
+            //Devices = devices;
+            //Pegi_labels = pegi_labels;
+            //Categories = categories;
+            //Awards = awards;
+            //Tournaments = tournaments;
+            //Reviews = reviews;
+        }
 
         public int Software_houseId { get; set; }
         public Software_house Software_house { get; set; }
@@ -27,7 +44,10 @@ namespace net_ef_videogame.Models
         public List<Review> Reviews { get; set; }
 
 
-
+        public override string ToString()
+        {
+            return $"Il videogioco {this.Name} è stato rilasciato in data: {this.Release_date}. Descrizione gioco: {this.Overview}";
+        }
 
 
 

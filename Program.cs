@@ -7,10 +7,10 @@ namespace net_ef_videogame
     {
         static void Main(string[] args)
         {
+            bool isProgramRunning = true;
 
 
-
-            while (true)
+            while (isProgramRunning)
             {
                 Console.WriteLine(@"
 1-Inserire un nuovo videogioco
@@ -28,9 +28,6 @@ namespace net_ef_videogame
                 switch (opzioneSelezionata)
                 {
                     case 1:
-                        using (VideogamesContext db = new VideogamesContext())
-                        {
-
                         Console.WriteLine("Inserisci nome videogame");
                         string nomeVideogioco = Console.ReadLine();
 
@@ -40,43 +37,53 @@ namespace net_ef_videogame
                         Console.WriteLine("Inserisci id software_house");
                         int id = int.Parse(Console.ReadLine());
 
+                        Console.WriteLine("Inserisci data");
+                        string data = Console.ReadLine();
+                        DateTime dataUtente = DateTime.Parse(data);
 
-                        Videogame nuovoVideogame = new Videogame()
-                        {
-                            Name = nomeVideogioco,
-                            Overview = descrizione,
-                            Software_houseId=id
-                        };
+                        Console.WriteLine("Inserisci id videogioco");
+                        int idVideogame = int.Parse(Console.ReadLine());
 
 
-                            try
-                            {
-                                db.Add(nuovoVideogame);
-                                db.SaveChanges();
+                        Videogame nuovoVideogame = new Videogame(idVideogame, nomeVideogioco, descrizione, dataUtente, id);
 
-                                Console.WriteLine("Videogioco aggiunto con successo!");
-
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex.Message);
-                            }
-                        }
+                        VideogameManager.AggiungiVideogioco(nuovoVideogame);
 
 
                         break;
 
                     case 2:
+                        Console.WriteLine("Inserisci id videogioco");
+                        int videogameId = int.Parse(Console.ReadLine());
 
+                        Videogame videogameTrovato = VideogameManager.RicercaGiocoPerId(videogameId);
+                        if(videogameTrovato != null)
+                        {
+                            Console.WriteLine(videogameTrovato);
+                        }
                         break;
 
                     case 3:
+                        Console.WriteLine("Inserisci nome videogioco");
+                        string nomeVideogame = Console.ReadLine();
 
+                        List<Videogame> videogiochi = VideogameManager.RicercaPerNome(nomeVideogame);
+                        foreach(Videogame videogioco in videogiochi)
+                        {
+                            Console.WriteLine(videogioco);
+                        }
                         break;
 
                     case 4:
-                        break;
+                        Console.WriteLine("Inserisci id videogioco da camcellare");
+                        int idVideogameDaCancellare = int.Parse(Console.ReadLine());
 
+                        VideogameManager.CancellaVideogame(idVideogameDaCancellare);
+                        break;
+                    case 5:
+                        isProgramRunning = false;
+                        Console.WriteLine("Programma chiuso!");
+                        break;
                 }
 
             }

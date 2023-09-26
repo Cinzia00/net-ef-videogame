@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using net_ef_videogame.Database;
 using net_ef_videogame.Models;
 using System;
 using System.Collections.Generic;
@@ -10,31 +11,20 @@ namespace net_ef_videogame
 {
     public class VideogameManager
     {
-        private static string connectionString = "Data Source=localhost;Initial Catalog=db-videogames;Integrated Security=True";
 
         public static bool AggiungiVideogioco(Videogame videogame)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (VideogamesContext db = new VideogamesContext())
             {
 
                 try
                 {
-                    connection.Open();
+                    
+                        db.Add(videogame);
+                        db.SaveChanges();
 
-                    string query = "INSERT INTO videogames (name, overview, release_date, software_house_id) VALUES (@Name, @Overview, @Release_date, @Software_house_id);";
+                        Console.WriteLine("Videogioco aggiunto con successo!");
 
-                    SqlCommand cmd = new SqlCommand(query, connection);
-                    cmd.Parameters.Add(new SqlParameter("@Name", videogame.Name));
-                    cmd.Parameters.Add(new SqlParameter("@Overview", videogame.Overview));
-                    cmd.Parameters.Add(new SqlParameter("@Release_date", videogame.Release_date));
-                    //cmd.Parameters.Add(new SqlParameter("@Software_house_id", videogame.SoftwareHouseID));
-
-                    int rowsAffected = cmd.ExecuteNonQuery();
-
-                    if (rowsAffected > 0)
-                    {
-                        return true;
-                    }
 
                 }
                 catch (Exception ex)
@@ -47,35 +37,21 @@ namespace net_ef_videogame
             }
         }
 
-        public static Videogame? RicercaGiocoPerId(long id)
+        public static Videogame RicercaGiocoPerId(long id)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (VideogamesContext db = new VideogamesContext())
             {
                 Videogame videogameTrovato = null;
 
                 try
                 {
-                    connection.Open();
+                    videogameTrovato = db.Videogames.Where(videogame => videogame.VideogameId == id).FirstOrDefault<Videogame>();
+                    
 
-                    string query = "SELECT * FROM videogames WHERE videogames.id = " + id;
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
-                    {
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-
-                            while (reader.Read())
-                            {
-
-                                videogameTrovato = new Videogame(reader.GetString(1), reader.GetString(2), reader.GetDateTime(3), reader.GetInt64(6));
-
-                            }
-                        }
-
-                    }
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine("ciaone");
                     Console.WriteLine(ex.Message);
                 }
 
@@ -86,75 +62,59 @@ namespace net_ef_videogame
         public static List<Videogame> RicercaPerNome(string nome)
         {
             List<Videogame> videogames = new List<Videogame>();
+            using (VideogamesContext db = new VideogamesContext())
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
                 try
                 {
-                    connection.Open();
+                    videogames = db.Videogames.Where(videogame => videogame.Name == nome).ToList<Videogame>();
 
-                    string query = "SELECT * FROM videogames WHERE videogames.name LIKE(@Nome)";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    if(videogames.Count > 0)
                     {
-                        cmd.Parameters.Add(new SqlParameter("@Nome", "%" + nome + "%"));
-                        using SqlDataReader reader = cmd.ExecuteReader();
-
-                        while (reader.Read())
+                        foreach(Videogame videogame in videogames)
                         {
-                            Videogame videogameTrovato = new Videogame(reader.GetString(1), reader.GetString(2), reader.GetDateTime(3), reader.GetInt64(6));
-                            videogames.Add(videogameTrovato);
+                            Console.WriteLine(videogame.ToString()); 
                         }
+
+                    }else
+                    {
+                        Console.WriteLine("Nessun videogioco trovato");
                     }
-
-
-
-
                 }
+
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
                 return videogames;
 
-            }
+         }
 
-        }
-        public static bool CancellaVideogame(long idDaCancellare)
+        public static Videogame CancellaVideogame(long idDaCancellare)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            Videogame videogameDaCancellare = null;
+
+            using (VideogamesContext db = new VideogamesContext())
             {
                 try
                 {
-                    connection.Open();
+                    videogameDaCancellare = db.Videogames.Where(videogame => videogame.VideogameId == idDaCancellare).FirstOrDefault<Videogame>();
 
-                    string query = "DELETE FROM videogames WHERE @id=Id";
-
-                    SqlCommand cmd = new SqlCommand(query, connection);
-                    cmd.Parameters.Add(new SqlParameter("@Id", idDaCancellare));
-
-                    int videogiocoDaCancellare = cmd.ExecuteNonQuery();
-
-                    if (videogiocoDaCancellare > 0)
+                    if (videogameDaCancellare != null)
                     {
-                        return true;
+                        db.Remove(videogameDaCancellare);
+                        db.SaveChanges();
+                        Console.WriteLine("Videogioco cancellato");
                     }
-
 
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
-                return false;
-
             }
-
+            return videogameDaCancellare;
 
         }
-
-
-
     }
-    
 }
+    

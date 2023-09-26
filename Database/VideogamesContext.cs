@@ -11,8 +11,8 @@ namespace net_ef_videogame.Database
     public class VideogamesContext : DbContext
     {
 
-        DbSet<Videogame> Videogames { get; set; }
-        DbSet<Software_house> Software_houses { get; set; }
+        public DbSet<Videogame> Videogames { get; set; }
+        public DbSet<Software_house> Software_houses { get; set; }
         DbSet<Device> Devices { get; set; }
         DbSet<Pegi_label> Pegi_labels { get; set; }
         DbSet<Category> Categories { get; set; }
